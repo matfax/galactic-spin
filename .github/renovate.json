@@ -1,0 +1,41 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "conda": {
+    "enabled": true
+  },
+  "pip_requirements": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "matchManagers": ["conda"],
+      "matchFiles": ["binder/environment.yml"],
+      "enabled": true
+    },
+    {
+      "matchPackageNames": ["python"],
+      "enabled": false
+    }
+  ],
+  "separateMinorPatch": true,
+  "patch": {
+    "automerge": true
+  },
+  "lockFileMaintenance": {
+    "automerge": true
+  },
+  "vulnerabilityAlerts": {
+    "automerge": true,
+    "labels": ["security"],
+    "assignees": ["@matfax"]
+  },
+  "labels": [
+    "dependencies",
+    "chore"
+  ],
+  "commitBody": "Signed-off-by: {{{gitAuthor}}}",
+  "timezone": "Europe/Berlin"
+}

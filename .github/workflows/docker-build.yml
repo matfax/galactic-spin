@@ -3,8 +3,22 @@ name: Build and Push Docker Image
 on:
   push:
     branches: [ main ]
+    paths: 
+      - 'binder/environment.yml'
+      - 'binder/requirements.txt'
+      - 'binder/postBuild'
+      - 'binder/start'
+      - 'binder/runtime.txt'
+      - '.github/workflows/docker-build.yml'
   pull_request:
     branches: [ main ]
+    paths: 
+      - 'binder/environment.yml'
+      - 'binder/requirements.txt'
+      - 'binder/postBuild'
+      - 'binder/start'
+      - 'binder/runtime.txt'
+      - '.github/workflows/docker-build.yml'
 
 env:
   REGISTRY: ghcr.io

@@ -1,0 +1,37 @@
+{
+  "name": "Galactic Spin Workshop",
+  "image": "ghcr.io/matfax/galactic-spin:latest",
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.jupyter",
+        "ms-toolsai.jupyter-keymap",
+        "ms-toolsai.jupyter-renderers"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/opt/conda/bin/python",
+        "jupyter.jupyterServerType": "local"
+      }
+    }
+  },
+
+  "forwardPorts": [8888],
+  "portsAttributes": {
+    "8888": {
+      "label": "Jupyter Lab",
+      "onAutoForward": "notify"
+    }
+  },
+
+  "postCreateCommand": "cd /workspace && jupyter lab --generate-config && echo 'c.ServerApp.token = \"\"' >> ~/.jupyter/jupyter_lab_config.py && echo 'c.ServerApp.password = \"\"' >> ~/.jupyter/jupyter_lab_config.py",
+
+  "remoteUser": "matfax",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest"
+    }
+  }
+}

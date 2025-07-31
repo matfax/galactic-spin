@@ -27,7 +27,7 @@
 
   "postCreateCommand": "cd /workspace && jupyter lab --generate-config && echo 'c.ServerApp.token = \"\"' >> ~/.jupyter/jupyter_lab_config.py && echo 'c.ServerApp.password = \"\"' >> ~/.jupyter/jupyter_lab_config.py",
 
-  "remoteUser": "matfax",
+  "remoteUser": "jovyan",
   
   "features": {
     "ghcr.io/devcontainers/features/git:1": {

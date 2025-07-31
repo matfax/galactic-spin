@@ -27,6 +27,7 @@ jobs:
             - 'binder/postBuild'
             - 'binder/start'
             - 'binder/runtime.txt'
+            - '.github/workflows/build.yml'
 
   build:
     runs-on: ubuntu-latest

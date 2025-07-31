@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Test
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - 'binder/postBuild'
       - 'binder/start'
       - 'binder/runtime.txt'
-      - '.github/workflows/docker-build.yml'
+      - '.github/workflows/build.yml'
   pull_request:
     branches: [ main ]
     paths: 
@@ -18,7 +18,7 @@ on:
       - 'binder/postBuild'
       - 'binder/start'
       - 'binder/runtime.txt'
-      - '.github/workflows/docker-build.yml'
+      - '.github/workflows/build.yml'
 
 env:
   REGISTRY: ghcr.io
@@ -84,6 +84,26 @@ jobs:
           docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
                      ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
         fi
+
+    - name: Run pytest with notebook validation
+      run: |
+        docker run --rm \
+          -v ${{ github.workspace }}:/home/jovyan/work \
+          -w /home/jovyan/work \
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          pytest --nbval --current-env binder/*.ipynb
+
+    - name: Run papermill preprocessing and test
+      run: |
+        docker run --rm \
+          -v ${{ github.workspace }}:/home/jovyan/work \
+          -w /home/jovyan/work \
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          bash -c "
+            papermill --prepare-only -p galaxy NGC5533 binder/07_Bonus_Bulge_Rotation_Curve.ipynb binder/07_Bonus_Bulge_Rotation_Curve_NGC5533.ipynb &&
+            papermill --prepare-only -p galaxy NGC7814 binder/07_Bonus_Bulge_Rotation_Curve.ipynb binder/07_Bonus_Bulge_Rotation_Curve_NGC7814.ipynb &&
+            pytest --nbval-lax binder/07_Bonus_Bulge_Rotation_Curve_NGC*.ipynb --current-env
+          "
 
     - name: Push Docker image
       if: github.event_name != 'pull_request'

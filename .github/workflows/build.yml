@@ -22,7 +22,11 @@ jobs:
       with:
         filters: |
           binder:
-            - 'binder/**'
+            - 'binder/environment.yml'
+            - 'binder/requirements.txt'
+            - 'binder/postBuild'
+            - 'binder/start'
+            - 'binder/runtime.txt'
 
   build:
     runs-on: ubuntu-latest
@@ -122,24 +126,21 @@ jobs:
         docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.image.outputs.tag }}
 
     - name: Run pytest with notebook validation
-      uses: addnab/docker-run-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-        image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.image.outputs.tag }}
-        options: -v ${{ github.workspace }}:/home/jovyan/work -w /home/jovyan/work
-        run: pytest --nbval --current-env binder/*.ipynb
+      run: |
+        docker run --rm \
+          -v ${{ github.workspace }}:/home/jovyan/work \
+          -w /home/jovyan/work \
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.image.outputs.tag }} \
+          pytest --nbval --current-env binder/*.ipynb
 
     - name: Run papermill preprocessing and test
-      uses: addnab/docker-run-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-        image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.image.outputs.tag }}
-        options: -v ${{ github.workspace }}:/home/jovyan/work -w /home/jovyan/work
-        run: |
-          papermill --prepare-only -p galaxy NGC5533 binder/07_Bonus_Bulge_Rotation_Curve.ipynb binder/07_Bonus_Bulge_Rotation_Curve_NGC5533.ipynb &&
-          papermill --prepare-only -p galaxy NGC7814 binder/07_Bonus_Bulge_Rotation_Curve.ipynb binder/07_Bonus_Bulge_Rotation_Curve_NGC7814.ipynb &&
-          pytest --nbval-lax binder/07_Bonus_Bulge_Rotation_Curve_NGC*.ipynb --current-env
+      run: |
+        docker run --rm \
+          -v ${{ github.workspace }}:/home/jovyan/work \
+          -w /home/jovyan/work \
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.image.outputs.tag }} \
+          bash -c "
+            papermill --prepare-only -p galaxy NGC5533 binder/07_Bonus_Bulge_Rotation_Curve.ipynb binder/07_Bonus_Bulge_Rotation_Curve_NGC5533.ipynb &&
+            papermill --prepare-only -p galaxy NGC7814 binder/07_Bonus_Bulge_Rotation_Curve.ipynb binder/07_Bonus_Bulge_Rotation_Curve_NGC7814.ipynb &&
+            pytest --nbval-lax binder/07_Bonus_Bulge_Rotation_Curve_NGC*.ipynb --current-env
+          "
